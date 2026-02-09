@@ -4,8 +4,6 @@ import { protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router(); 
 
-// router.use(arcjetProtection) // instead of writting it on each route, using this method, so that for each route first ajProtection is checked and then go to the next middlewares or controller. 
-
 router.post("/signup",signup)
 router.post("/login", login)
 

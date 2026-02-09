@@ -1,9 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { ENV } from "./env.js";
-
-const ai = new GoogleGenAI({
-  apiKey: ENV.FALLYTICS_AI_KEY
-});
+import apiKeyRotator from "./apiKeysRotator.js";
 
 
 const buildAIPrompt = (aiContext) => {
@@ -53,6 +49,16 @@ const cleanAIResponse = (text) => {
 
 export const getAIAnalysis = async (aiContext) => {
   try {
+    // Get the next API key in rotation
+    const apiKey = apiKeyRotator.getNextKey();
+    
+    console.log(`Using API key #${apiKeyRotator.getCurrentIndex()+1} of ${apiKeyRotator.getTotalKeys()}`);
+    
+    // Create AI instance with rotated key
+    const ai = new GoogleGenAI({
+      apiKey: apiKey
+    });
+
     const prompt = buildAIPrompt(aiContext);
 
     const response = await ai.models.generateContent({
@@ -65,7 +71,6 @@ export const getAIAnalysis = async (aiContext) => {
       ]
     });
 
-    // Clean the response before parsing
     const cleanedText = cleanAIResponse(response.text);
     
     return JSON.parse(cleanedText);
