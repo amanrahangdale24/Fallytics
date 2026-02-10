@@ -1,4 +1,6 @@
 import express from "express";
+import cors from "cors";
+import path from "path";
 import dotenv from "dotenv";
 import connectToDB from "./db/config/connection.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -6,11 +8,19 @@ import taskRoutes from "./routes/task.routes.js"
 import cookieParser from "cookie-parser"; 
 import { ENV } from "./utils/env.js";
 
+
 dotenv.config(); 
 const app = express(); 
 
+const __dirname = path.resolve();
+
 // DB connection
 connectToDB(); 
+
+app.use(cors({
+    origin:ENV.CLIENT_URL,
+    credentials:true
+}))
 
 app.use(express.json()); 
 app.use(cookieParser());
@@ -32,5 +42,5 @@ if (ENV.NODE_ENV === "production") {
 
 
 app.listen(ENV.PORT|| 4044, ()=>{
-    console.log("Server is listening on PORT 4044"); 
+    console.log(`Server is listening on PORT ${ENV.PORT}`); 
 }); 
