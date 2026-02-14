@@ -1,1 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 @import "tailwindcss";
+
+@theme {
+    --font-sans: 'Geist', sans-serif;
+}
+
+@layer base {
+    body {
+        @apply text-sm antialiased text-zinc-800 bg-white;
+    }
+}
+
+@keyframes marqueeScroll {
+    0% {
+        transform: translateX(0%);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.marquee-inner {
+    animation: marqueeScroll 25s linear infinite;
+}
+
+.marquee-reverse {
+    animation-direction: reverse;
+}
