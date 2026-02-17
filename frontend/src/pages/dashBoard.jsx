@@ -1,31 +1,103 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { CheckCircle2, XCircle, ListTodo, AlertCircle, Sparkles, TrendingUp, BarChart } from 'lucide-react';
+import { CheckCircle2, XCircle, ListTodo, AlertCircle, Sparkles, TrendingUp, BarChart, Lightbulb, AlertTriangle, Target, Rocket } from 'lucide-react';
+import { useTaskStore } from '../store/taskStore';
+import { useEffect } from 'react';
+import LoaderPage from '../components/Loader';
+
 
 const Dashboard = ()=> {
-  const analytics = {
-    totalTasks: 42,
-    completedTasks: 28,
-    missedTasks: 14,
-    topMissedReason: 'Procrastination',
-    consistencyTrend: [
-        { date: 'Mon', completed: 4, missed: 2 },
-        { date: 'Tue', completed: 5, missed: 1 },
-        { date: 'Wed', completed: 3, missed: 3 },
-        { date: 'Thu', completed: 6, missed: 0 },
-        { date: 'Fri', completed: 4, missed: 2 },
-        { date: 'Sat', completed: 2, missed: 4 },
-        { date: 'Sun', completed: 4, missed: 2 },
-    ],
-    missedReasonDistribution: [
-        { name: 'Procrastination', value: 8 },
-        { name: 'Time Management', value: 4 },
-        { name: 'Distractions', value: 2 },
-    ],
-    aiResponse: "Based on your recent activity, you seem to be struggling with consistency on weekends. Focusing on a lighter schedule during Saturday and Sunday might help maintain momentum without burnout. Consider time-blocking your most productive hours."
-  };
+  const { analytics, fetchAnalytics, isLoading } = useTaskStore();
 
-  const { totalTasks, completedTasks, missedTasks, topMissedReason, consistencyTrend, missedReasonDistribution, aiResponse } = analytics;
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
+
+  if (isLoading) {
+    return (
+     <LoaderPage/>
+    );
+  }
+
+
+  if (!analytics || analytics.cards?.totalTasks === 0) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-gray-800 p-8 rounded-2xl border border-gray-700 max-w-md w-full text-center"
+        >
+          <div className="bg-indigo-500/10 p-4 rounded-full w-fit mx-auto mb-6">
+            <ListTodo className="w-12 h-12 text-indigo-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">No Analytics Yet</h2>
+          <p className="text-gray-400 mb-8 leading-relaxed">
+            Your dashboard is empty because you haven't added any tasks yet. 
+            Start planning your day to unlock powerful insights!
+          </p>
+          <Link 
+            to="/tasks" 
+            className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white transition-colors bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Create Your First Task
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Check if we have only planned tasks but no completed/missed activity
+  const hasActivity = (analytics.cards?.completed || 0) > 0 || (analytics.cards?.missed || 0) > 0;
+  
+  if (!hasActivity) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-gray-800 p-8 rounded-2xl border border-gray-700 max-w-md w-full text-center"
+        >
+          <div className="bg-emerald-500/10 p-4 rounded-full w-fit mx-auto mb-6">
+            <Target className="w-12 h-12 text-emerald-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-3">Ready to Execute?</h2>
+          <p className="text-gray-400 mb-8 leading-relaxed">
+            You have planned <strong>{analytics.cards?.totalTasks} tasks</strong>, but haven't marked any as Done or Missed yet.
+            <br/><br/>
+            Head over to your tasks list and update their status to see your analytics!
+          </p>
+          <Link 
+            to="/tasks" 
+            className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white transition-colors bg-emerald-600 rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+          >
+            Update Task Status
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
+  const { cards, charts, ai } = analytics;
+
+  const totalTasks = cards?.totalTasks || 0;
+  const completedTasks = cards?.completed || 0;
+  const missedTasks = cards?.missed || 0;
+  const topMissedReason = cards?.topMissedReason || 'N/A';
+
+  // Transform data for Consistency Trend Chart
+  const consistencyTrend = charts?.taskPerformance?.days?.map((day, index) => ({
+    date: day,
+    completed: charts.taskPerformance.completed[index] || 0,
+    missed: charts.taskPerformance.missed[index] || 0,
+  })) || [];
+
+  // Transform data for Missed Reason Distribution Chart
+  const missedReasonDistribution = charts?.missedReasons?.labels?.map((label, index) => ({
+    name: label,
+    value: charts.missedReasons.values[index] || 0,
+  })) || [];
 
   const summaryCards = [
     {
@@ -175,22 +247,90 @@ const Dashboard = ()=> {
           </motion.div>
         </div>
 
-        {aiResponse && (
+        {ai && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="bg-linear-to-br from-indigo-900/30 to-blue-900/30 backdrop-blur-sm border-2 border-indigo-500/50 rounded-xl p-6 relative overflow-hidden"
+            className="bg-gray-800/80 backdrop-blur-md border border-indigo-500/30 rounded-2xl overflow-hidden shadow-xl"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/20 rounded-full filter blur-3xl"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-indigo-600 rounded-lg">
-                  <Sparkles className="w-6 h-6 text-white" />
+            {/* Header */}
+            <div className="bg-linear-to-r from-indigo-900/50 to-purple-900/50 p-6 border-b border-indigo-500/20">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-500/20 rounded-lg border border-indigo-500/50">
+                  <Sparkles className="w-6 h-6 text-indigo-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">AI-Powered Insights</h2>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">AI Capabilities & Insights</h2>
+                  <p className="text-indigo-300 text-sm">Personalized analysis of your productivity patterns</p>
+                </div>
               </div>
-              <p className="text-gray-200 leading-relaxed whitespace-pre-wrap">{aiResponse}</p>
+            </div>
+
+            <div className="p-6 flex flex-col gap-8">
+              {/* Insights */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-indigo-400">
+                  <BarChart className="w-5 h-5" />
+                  <h3 className="font-semibold text-lg">Key Insights</h3>
+                </div>
+                <ul className="space-y-3">
+                  {ai.insights?.map((insight, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-gray-300 bg-gray-900/50 p-3 rounded-lg border border-gray-700/50">
+                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                      <span className="text-sm leading-relaxed">{insight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Suggestions */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <Lightbulb className="w-5 h-5" />
+                  <h3 className="font-semibold text-lg">Smart Suggestions</h3>
+                </div>
+                <ul className="space-y-3">
+                  {ai.suggestions?.map((suggestion, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-gray-300 bg-emerald-900/10 p-3 rounded-lg border border-emerald-500/20">
+                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      <span className="text-sm leading-relaxed">{suggestion}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Warnings */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-amber-500">
+                  <AlertTriangle className="w-5 h-5" />
+                  <h3 className="font-semibold text-lg">Areas for Attention</h3>
+                </div>
+                <ul className="space-y-3">
+                  {ai.warnings?.map((warning, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-gray-300 bg-amber-900/10 p-3 rounded-lg border border-amber-500/20">
+                      <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                      <span className="text-sm leading-relaxed">{warning}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Motivation */}
+              <div className="mt-2">
+                <div className="bg-linear-to-br from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 rounded-xl p-5 flex items-start gap-4">
+                  <div className="p-3 bg-indigo-500/20 rounded-full shrink-0">
+                    <Rocket className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-indigo-300 font-medium mb-1 flex items-center gap-2">
+                      <Target className="w-4 h-4" />
+                      Keep Going!
+                    </h4>
+                    <p className="text-gray-200 italic leading-relaxed">"{ai.motivation}"</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

@@ -138,7 +138,17 @@ export const getTasksForAnalysis = async (req, res) => {
       patterns: detectPatterns(stats.doneTasks, stats.missedTasks)
     };
 
-    const aiResponse = await getAIAnalysis(aiContext);
+    let aiResponse = null; 
+    if (stats.doneTasks.length > 0 || stats.missedTasks.length > 0) {
+      aiResponse = await getAIAnalysis(aiContext);
+    } else {
+        aiResponse = {
+            insights: ["You have planned tasks but haven't completed or missed any yet.", "Complete some tasks to see AI insights!"],
+            suggestions: ["Focus on your first planned task.", "Mark tasks as done or missed to track progress."],
+            warnings: [],
+            motivation: "Great start on planning! Now let's execute."
+        };
+    }
 
     res.status(200).json({
       range: "Last 7 Days",

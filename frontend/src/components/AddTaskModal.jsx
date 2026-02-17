@@ -175,7 +175,7 @@ const AddTaskModal =({ isOpen, onClose, onTaskAdded }) => {
                       isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                   >
-                    {isSubmitting ? <LoaderPage/> : 'Create Task'}
+                    {isSubmitting ? 'Creating...': 'Create Task'}
                   </motion.button>
                 </div>
               </form>

@@ -6,6 +6,7 @@ export const useTaskStore = create((set) => ({
   tasks: [],
   isLoading: false,
   error: null,
+  analytics: null,
 
   fetchTasks: async () => {
     set({ isLoading: true, error: null });
@@ -42,7 +43,7 @@ export const useTaskStore = create((set) => ({
 
   updateTaskStatus: async (taskId, status, reason = "") => {
     try {
-      await axiosInstance.patch(`/tasks/${taskId}`, { status, reason });
+      await axiosInstance.patch(`/task/${taskId}`, { status, reason });
       
       set((state) => ({
         tasks: state.tasks.map((task) => 
@@ -61,4 +62,18 @@ export const useTaskStore = create((set) => ({
       return { success: false, message: errorMessage };
     } 
   },
+
+  fetchAnalytics: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const result = await axiosInstance.get(`/task/analysis?range=7days`);
+      set({ analytics: result.data }); 
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      set({ error: "Failed to fetch analytics" });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
 }));
