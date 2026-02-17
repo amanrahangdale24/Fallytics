@@ -90,6 +90,20 @@ export const updateTaskStatus = async (req, res) => {
   }
 };
 
+export const getTasks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const tasks = await Task.find({ userId }).sort({ plannedDate: -1 });
+
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error("Error in getTasks:", error);
+    res.status(500).json({
+      message: "Failed to fetch tasks"
+    });
+  }
+};
+
 export const getTasksForAnalysis = async (req, res) => {
   try {
     const userId = req.user.id;
