@@ -16,6 +16,7 @@ const App = ()=> {
   },[checkAuth])
   return (
     <>
+      <Toaster />
       <Routes>
         <Route path="/" element={
             <Layout>

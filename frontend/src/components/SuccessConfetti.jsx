@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-function SuccessConfetti() {
+const SuccessConfetti = () => {
   const confettiPieces = Array.from({ length: 50 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,

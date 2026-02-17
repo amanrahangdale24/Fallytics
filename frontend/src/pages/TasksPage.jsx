@@ -1,74 +1,50 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, CheckCircle, XCircle, Clock, Calendar, Tag, X } from 'lucide-react';
+import { useTaskStore } from '../store/taskStore';
 import AddTaskModal from '../components/AddTaskModal';
 import MissedReasonModal from '../components/MissedReasonModal';
 import SuccessConfetti from '../components/SuccessConfetti';
+import LoaderPage from '../components/Loader';
 
-function Tasks() {
-  const [tasks, setTasks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const Tasks = ()=> {
+  const { tasks, isLoading, fetchTasks, updateTaskStatus } = useTaskStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showMissedModal, setShowMissedModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [completingTaskId, setCompletingTaskId] = useState(null);
 
-  useEffect(() => {
-    // Simulate fetching tasks
-    setTimeout(() => {
-      setTasks([
-        {
-          _id: '1',
-          taskName: 'Complete Project Report',
-          category: 'Work',
-          plannedDate: new Date().toISOString(),
-          duration: 60,
-          status: 'planned'
-        },
-        {
-          _id: '2',
-          taskName: 'Grocery Shopping',
-          category: 'Personal',
-          plannedDate: new Date().toISOString(),
-          duration: 45,
-          status: 'done'
-        },
-        {
-          _id: '3',
-          taskName: 'Gym Workout',
-          category: 'Health',
-          plannedDate: new Date().toISOString(),
-          duration: 90,
-          status: 'missed',
-          reason: 'Overslept'
-        }
-      ]);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+   useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
-  const handleCompleteTask = (taskId) => {
-    setTasks(tasks.map(task => task._id === taskId ? { ...task, status: 'done' } : task));
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
+  const handleCompleteTask = async (taskId) => {
+    const result = await updateTaskStatus(taskId, 'done');
+    if (result.success) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    }
   };
 
   const handleMissedTask = (task) => {
     setSelectedTask(task);
     setShowMissedModal(true);
   };
-
-  const handleMissedReasonSubmit = (reason) => {
-    setTasks(tasks.map(task => task._id === selectedTask._id ? { ...task, status: 'missed', reason } : task));
-    setShowMissedModal(false);
-    setSelectedTask(null);
+  
+  const handleMissedReasonSubmit = async (reason) => {
+    if(selectedTask) {
+      const result = await updateTaskStatus(selectedTask._id, 'missed', reason);
+      if (result.success) {
+        setShowMissedModal(false);
+        setSelectedTask(null);
+      }
+    }
   };
 
-  const handleTaskAdded = (newTask) => {
-    setTasks([newTask, ...tasks]);
+  const handleTaskAdded = () => {
     setShowAddModal(false);
   };
-
 
   const groupedTasks = {
     planned: tasks.filter(t => t.status === 'planned'),
@@ -94,21 +70,14 @@ function Tasks() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
+            className="flex items-center gap-2 bg-linear-to-r from-indigo-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all"
           >
             <Plus className="w-5 h-5" />
             Add Task
           </motion.button>
         </motion.div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-400">Loading tasks...</p>
-            </div>
-          </div>
-        ) : (
+        {isLoading ? <LoaderPage/> : (
           <div className="space-y-8">
             <TaskSection
               title="Planned Tasks"
@@ -117,6 +86,7 @@ function Tasks() {
               iconColor="text-blue-500"
               onComplete={handleCompleteTask}
               onMissed={handleMissedTask}
+              completingTaskId={completingTaskId}
             />
 
             <TaskSection
@@ -157,7 +127,7 @@ function Tasks() {
   );
 }
 
-function TaskSection({ title, tasks, icon: Icon, iconColor, onComplete, onMissed, isCompleted, isMissed }) {
+const TaskSection =({ title, tasks, icon: Icon, iconColor, onComplete, onMissed, isCompleted, isMissed, completingTaskId }) => {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
@@ -208,13 +178,18 @@ function TaskSection({ title, tasks, icon: Icon, iconColor, onComplete, onMissed
                 {!isCompleted && !isMissed && (
                   <div className="flex gap-2 mt-4">
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => onComplete(task._id)}
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      whileHover={completingTaskId === task._id ? {} : { scale: 1.05 }}
+                      whileTap={completingTaskId === task._id ? {} : { scale: 0.95 }}
+                      onClick={() => !completingTaskId && onComplete(task._id)}
+                      disabled={completingTaskId === task._id}
+                      className={`flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${completingTaskId === task._id ? "opacity-75 cursor-wait" : ""}`}
                     >
-                      <CheckCircle className="w-4 h-4" />
-                      Complete
+                      {completingTaskId === task._id ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
+                      {completingTaskId === task._id ? "Completing..." : "Complete"}
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05 }}

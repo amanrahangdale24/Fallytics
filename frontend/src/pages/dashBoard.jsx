@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { CheckCircle2, XCircle, ListTodo, AlertCircle, Sparkles, TrendingUp, BarChart } from 'lucide-react';
 
-function Dashboard() {
+const Dashboard = ()=> {
   const analytics = {
     totalTasks: 42,
     completedTasks: 28,

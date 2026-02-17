@@ -16,11 +16,14 @@ const commonReasons = [
 function MissedReasonModal({ isOpen, onClose, onSubmit, taskName }) {
   const [selectedReason, setSelectedReason] = useState('');
   const [customReason, setCustomReason] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const reason = selectedReason === 'Other' ? customReason : selectedReason;
     if (reason.trim()) {
-      onSubmit(reason);
+      setIsSubmitting(true);
+      await onSubmit(reason);
+      setIsSubmitting(false);
       setSelectedReason('');
       setCustomReason('');
     }
@@ -118,10 +121,21 @@ function MissedReasonModal({ isOpen, onClose, onSubmit, taskName }) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSubmit}
-                    disabled={!selectedReason || (selectedReason === 'Other' && !customReason.trim())}
-                    className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={
+                      !selectedReason ||
+                      (selectedReason === "Other" && !customReason.trim()) ||
+                      isSubmitting
+                    }
+                    className="flex-1 bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    Submit
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit"
+                    )}
                   </motion.button>
                 </div>
               </div>

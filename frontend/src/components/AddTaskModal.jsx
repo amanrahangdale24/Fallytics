@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
+import { useTaskStore } from '../store/taskStore';
+import LoaderPage from './Loader';
 
-function AddTaskModal({ isOpen, onClose, onTaskAdded }) {
+const AddTaskModal =({ isOpen, onClose, onTaskAdded }) => {
+  const { addTask } = useTaskStore();
   const [formData, setFormData] = useState({
     taskName: '',
     category: '',
@@ -10,12 +13,13 @@ function AddTaskModal({ isOpen, onClose, onTaskAdded }) {
     duration: '',
   });
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -24,15 +28,33 @@ function AddTaskModal({ isOpen, onClose, onTaskAdded }) {
       return;
     }
 
-    const newTask = {
-        _id: Date.now().toString(),
-        ...formData,
-        status: 'planned'
-    };
+    setIsSubmitting(true);
+    try {
+      const [datePart, timePart] = formData.plannedDate.split('T');
 
-    onTaskAdded(newTask);
-    setFormData({ taskName: '', category: '', plannedDate: '', duration: '' });
-    onClose();
+      const payload = {
+        taskName: formData.taskName,
+        category: formData.category,
+        plannedDate: datePart,
+        plannedTime: timePart,
+        duration: Number(formData.duration),
+      };
+
+      const result = await addTask(payload);
+
+      if (result.success) {
+        setFormData({ taskName: '', category: '', plannedDate: '', duration: '' });
+        if (onTaskAdded) onTaskAdded();
+        else onClose();
+      } else {
+        setError(result.message || 'Failed to create task');
+      }
+    } catch (err) {
+      console.log("Error in adding task:",err)
+      setError('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -148,9 +170,12 @@ function AddTaskModal({ isOpen, onClose, onTaskAdded }) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white py-3 rounded-lg font-semibold transition-all"
+                    disabled={isSubmitting}
+                    className={`flex-1 bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white py-3 rounded-lg font-semibold transition-all ${
+                      isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
                   >
-                    Create Task
+                    {isSubmitting ? <LoaderPage/> : 'Create Task'}
                   </motion.button>
                 </div>
               </form>

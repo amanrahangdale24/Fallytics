@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { LogIn, Mail, Lock, LoaderIcon} from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
-function Login() {
+const  Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [validationError, setValidationError] = useState('');
