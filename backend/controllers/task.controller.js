@@ -93,7 +93,11 @@ export const updateTaskStatus = async (req, res) => {
 export const getTasks = async (req, res) => {
   try {
     const userId = req.user.id;
-    const tasks = await Task.find({ userId }).sort({ plannedDate: -1 });
+    const { startDate, endDate } = getDateRange(7);
+    const tasks = await Task.find({ 
+      userId,
+      plannedDate: { $gte: startDate, $lte: endDate }
+    }).sort({ plannedDate: -1 });
 
     res.status(200).json(tasks);
   } catch (error) {

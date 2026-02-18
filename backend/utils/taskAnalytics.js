@@ -1,7 +1,11 @@
 export const getDateRange = (days) => {
   const endDate = new Date();
+  endDate.setHours(23, 59, 59, 999);
+  
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - (days - 1));
+  startDate.setHours(0, 0, 0, 0);
+  
   return { startDate, endDate };
 };
 
