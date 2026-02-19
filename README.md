@@ -75,71 +75,6 @@ Instead of just tracking what you *planned*, it helps you understand **why thing
 - Render (Web Service)
 - MongoDB Atlas (recommended for production)
 
----
-
-## 📂 Project Structure
-
-```bash
-Faillytics/
-├── backend/
-│   ├── controllers/        # auth + task controllers
-│   ├── db/
-│   │   ├── config/         # Mongo connection
-│   │   └── models/         # Task, User schemas
-│   ├── middleware/         # auth middleware
-│   ├── routes/             # /api/auth, /api/task
-│   ├── utils/              # env, AI, analytics helpers
-│   └── server.js           # Express app entry
-│
-├── frontend/
-│   ├── public/
-│   └── src/
-│       ├── components/     # Layout, modals, hero, etc.
-│       ├── pages/          # Home, Login, Signup, Tasks, Dashboard
-│       ├── store/          # authStore, taskStore (Zustand)
-│       ├── lib/            # axios instance
-│       └── main.jsx, App.jsx
-│
-├── package.json            # root scripts (build/start)
-└── README.md
-```
-
----
-
-## ⚙️ Environment Variables
-
-### Backend (`/backend/.env` locally, Render env vars in production)
-
-Required:
-
-```env
-# Local dev port (Render sets PORT automatically in prod)
-PORT=4044
-
-# MongoDB (local or Atlas)
-MONGO_URI=your_mongo_connection_string
-
-# JWT
-JWT_SECRET=your_super_secret_jwt_key
-
-# Node environment
-NODE_ENV=development  # change to 'production' in Render
-
-# Frontend URL (for CORS)
-CLIENT_URL=http://localhost:5173   # in prod: https://your-app.onrender.com
-
-# Gemini / AI keys
-FALLYTICS_AI_KEY1=your_gemini_api_key
-# optionally FALLYTICS_AI_KEY2 / 3 / 4 if you’re rotating keys
-```
-
-> **On Render:**
-> - **Do NOT** set `PORT` manually – Render injects it.
-> - Use your **Atlas** URI for `MONGO_URI`.
-> - Set `CLIENT_URL` to your Render URL (e.g. `https://faillytics.onrender.com`).
-> - Keep `NODE_ENV=production`.
-
----
 
 ## 🧪 Running the Project Locally
 
@@ -180,16 +115,6 @@ The frontend talks to:
 
 ---
 
-## 🚀 Production Build & Deployment (Render)
-
-**Root `package.json` scripts:**
-
-```json
-"scripts": {
-  "build": "npm install --prefix backend && npm_config_production=false npm install --prefix frontend && npm run build --prefix frontend",
-  "start": "npm run start --prefix backend"
-}
-```
 
 **On Render (Web Service):**
 
@@ -204,35 +129,6 @@ The frontend talks to:
 
 The backend serves the built React app from `frontend/dist` when `NODE_ENV === "production"`.
 
----
-
-## 🧭 Roadmap (Ideas)
-
-- ⏱️ Time-of-day heatmaps for misses/completions
-- 🧩 Tag-level analytics (e.g. “Study”, “Fitness”)
-- 🔔 Email or in-app reminders before planned times
-- 👤 User profile with streaks and achievements
-- 🌐 Multi-language support
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feature/amazing-idea`
-3. Commit your changes: `git commit -m "Add amazing idea"`
-4. Push the branch: `git push origin feature/amazing-idea`
-5. Open a Pull Request
-
----
-
-## 📜 License
-
-This project is licensed under the **ISC License** – see `LICENSE` for details (or your `package.json` license field).
-
----
 
 ## 📬 Contact
 
