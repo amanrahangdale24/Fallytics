@@ -2,8 +2,6 @@
 
 **Faillytics** is not just another task manager. It is a productivity tool designed to help you understand *why* you miss tasks. By tracking your planned vs. actual performance and analyzing the reasons behind missed tasks, Faillytics uses AI to provide personalized insights to improve your consistency.
 
-![Dashboard Preview](https://via.placeholder.com/1200x600?text=Faillytics+Dashboard+Preview) 
-*(Replace with a real screenshot of your dashboard)*
 
 ## ✨ Key Features
 
