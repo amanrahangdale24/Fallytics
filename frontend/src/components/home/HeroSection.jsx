@@ -20,7 +20,7 @@ const HeroSection = () => {
           <span className="inline-block py-1 px-3 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium mb-6">
             🚀 Elevate Your Productivity
           </span>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-linear-to-r from-white via-gray-200 to-gray-400">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-white">
             Turn Failure into <br className="hidden md:block" />
             <span className="text-indigo-500">Success</span>
           </h1>
