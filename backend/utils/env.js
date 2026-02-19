@@ -10,6 +10,5 @@ export const ENV = {
   FALLYTICS_AI_KEY2: process.env.FALLYTICS_AI_KEY2,
   FALLYTICS_AI_KEY3: process.env.FALLYTICS_AI_KEY3,
   FALLYTICS_AI_KEY4: process.env.FALLYTICS_AI_KEY4,
-  ARCJET_KEY: process.env.ARCJET_KEY,
-  ARCJET_ENV: process.env.ARCJET_ENV,
+  MONGO_URI_PUBLIC: process.env.MONGO_URI_PUBLIC
 }; 
