@@ -165,7 +165,7 @@ const TaskSection =({ title, tasks, icon: Icon, iconColor, onComplete, onMissed,
 
                 <div className="flex items-center gap-2 text-gray-400 text-sm">
                   <Clock className="w-4 h-4" />
-                  <span>{task.duration} mins</span>
+                  <span>{task.plannedTime} • {task.duration} mins</span>
                 </div>
 
                 {task.reason && (

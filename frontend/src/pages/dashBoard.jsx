@@ -192,7 +192,7 @@ const Dashboard = ()=> {
               <LineChart data={consistencyTrend || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="date" stroke="#9ca3af" />
-                <YAxis stroke="#9ca3af" />
+                <YAxis stroke="#9ca3af" allowDecimals={false} domain={[0, (max) => Math.max(max, 8)]} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#1f2937',

@@ -58,23 +58,45 @@ export const analyzeMissedReasons = (missedTasks) => {
 };
 
 export const calculateDayWisePerformance = (tasks) => {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const last7Days = [];
   const performance = {};
-  
-  days.forEach(day => {
-    performance[day] = { done: 0, missed: 0 };
-  });
+
+  // Helper to format date key locally YYYY-MM-DD
+  const formatDateKey = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  // Initialize for last 7 days
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateKey = formatDateKey(d);
+    
+    performance[dateKey] = { 
+      label: d.getDate().toString(), 
+      done: 0, 
+      missed: 0 
+    };
+    last7Days.push(dateKey);
+  }
 
   tasks.forEach(task => {
-    const dayName = days[new Date(task.plannedDate).getDay()];
-    if (task.status === "done") performance[dayName].done++;
-    if (task.status === "missed") performance[dayName].missed++;
+    const taskDate = new Date(task.plannedDate);
+    const dateKey = formatDateKey(taskDate);
+    
+    if (performance[dateKey]) {
+       if (task.status === "done") performance[dateKey].done++;
+       if (task.status === "missed") performance[dateKey].missed++;
+    }
   });
 
   return {
-    days,
-    completed: days.map(day => performance[day].done),
-    missed: days.map(day => performance[day].missed)
+    days: last7Days.map(dateKey => performance[dateKey].label),
+    completed: last7Days.map(dateKey => performance[dateKey].done),
+    missed: last7Days.map(dateKey => performance[dateKey].missed)
   };
 };
 
